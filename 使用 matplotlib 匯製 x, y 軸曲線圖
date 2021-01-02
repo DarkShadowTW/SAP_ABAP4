@@ -1,0 +1,25 @@
+使用 matplotlib 匯製 x, y 軸曲線圖
+
+Reference : https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/362466/ 
+
+import numpy as np
+import matplotlib.pyplot as plt
+# 生成x軸上的資料:從-3到3，總共有50個點
+x = np.linspace(-1, 1, 50)
+# 定義一個線性方程
+y1 = 2 * x
+# 定義一個二次方程
+y2 = x ** 2
+# 設定x軸的取值範圍為：-1到2
+plt.xlim(-1, 2)
+# 設定y軸的取值範圍為：-1到3
+plt.ylim(-1, 3)
+# 設定x軸的文字，用於描述x軸代表的是什麼
+plt.xlabel("I am x")
+# 設定y軸的文字，用於描述y軸代表的是什麼
+plt.ylabel("I am y")
+plt.plot(x, y2)
+# 繪製紅色的線寬為1虛線的線條
+plt.plot(x, y1, color='red', linewidth=1.0, linestyle='--')
+# 顯示圖表
+plt.show()
