@@ -4,7 +4,7 @@ Reference : https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/362466/
 
 import numpy as np
 import matplotlib.pyplot as plt
-# 生成x軸上的資料:從-3到3，總共有50個點
+# 生成x軸上的資料:從-1到1，總共有50個點
 x = np.linspace(-1, 1, 50)
 # 定義一個線性方程
 y1 = 2 * x
