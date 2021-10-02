@@ -4,7 +4,7 @@
 
 *--DATE    : 2021/10/02
 
-*--Choose grid/list format ALV by difference Function Module
+*--Choose grid/list ALV format by difference Function Module
 
 ![This is a alt text.](/images/Y_EX_ALV_EXAMPLE_001.png "ALV GRID/LIST format")
 
@@ -16,7 +16,7 @@
 
 ![This is a alt text.](/images/Y_EX_ALV_EXAMPLE_005.png "ALV GRID/LIST format")
 
-*--Choose grid/list format ALV by difference Function Module
+*--Choose grid/list ALV format by radio button
 
 ![This is a alt text.](/images/Y_EX_ALV_EXAMPLE_002.png "ALV GRID/LIST format")
 
