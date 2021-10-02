@@ -1,0 +1,149 @@
+*--Purpose : This program shows how to use ALV by FM : REUSE_ALV_GRID_DISPLAY/REUSE_ALV_LIST_DISPLAY
+*--Author  : Eric Yang
+*--DATE    : 2021/10/02
+
+REPORT y_ex_alv_example.
+
+*--TYPE POOL
+TYPE-POOLS : slis.
+
+*--INCLUDE
+
+*--DECLARE Variant
+DATA: wt_fieldcat TYPE slis_t_fieldcat_alv WITH HEADER LINE,    "ALV field category
+      w_layout   TYPE slis_layout_alv.                         "ALV layout
+DATA: w_fm_name TYPE string VALUE 'REUSE_ALV_GRID_DISPLAY'.  "Function Module Name
+
+"declare for field category
+DATA: w_repid LIKE sy-repid.  "program name
+
+*--DECLARE Internal Table
+DATA: wt_ytsaber001 LIKE STANDARD TABLE OF ytsaber001 WITH HEADER LINE.
+
+*--SELECT-OPTION or PARAMETERS
+PARAMETERS: r_grid RADIOBUTTON GROUP gp1 USER-COMMAND clik DEFAULT 'X',
+            r_list RADIOBUTTON GROUP gp1.
+
+*--AT SELECTION-SCREEN EVENT
+AT SELECTION-SCREEN.
+  IF sy-ucomm = 'CLIK'.
+    IF r_grid = 'X'.
+      w_fm_name = 'REUSE_ALV_GRID_DISPLAY'.
+    ELSEIF r_list = 'X'.
+      w_fm_name = 'REUSE_ALV_LIST_DISPLAY'.
+    ENDIF.
+  ENDIF.
+
+*--INITIAL
+INITIALIZATION.
+
+*--START-OF-SELECTION
+START-OF-SELECTION.
+  PERFORM f_getdata TABLES wt_ytsaber001.
+  PERFORM f_fieldcat.
+  PERFORM f_alvdisplay.
+
+*&---------------------------------------------------------------------*
+*&      Form  f_getdata
+*&---------------------------------------------------------------------*
+*       Get data from table ytsaber001
+*----------------------------------------------------------------------*
+FORM f_getdata TABLES pt_ytsaber001.
+
+  CLEAR: pt_ytsaber001, wt_ytsaber001[].
+  SELECT * UP TO 5 ROWS INTO CORRESPONDING FIELDS OF TABLE pt_ytsaber001
+    FROM ytsaber001.
+
+ENDFORM.                    " f_getdata
+
+
+*&---------------------------------------------------------------------*
+*&      Form  f_fieldcat
+*&---------------------------------------------------------------------*
+*       set alv field category by REUSE_ALV_FIELDCATALOG_MERGE
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM f_fieldcat .
+
+*-Initial Variant
+  CLEAR: wt_fieldcat, wt_fieldcat[], w_layout.
+
+*-Get Current Program Name
+  w_repid = sy-repid.
+
+*-Call Function get Table Structure from Transp. Table
+  CALL FUNCTION 'REUSE_ALV_FIELDCATALOG_MERGE'
+    EXPORTING
+      i_program_name         = w_repid
+      i_structure_name       = 'ytsaber001'
+    CHANGING
+      ct_fieldcat            = wt_fieldcat[]
+    EXCEPTIONS
+      inconsistent_interface = 1
+      program_error          = 2
+      OTHERS                 = 3.
+
+  IF sy-subrc <> 0.
+    MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+          WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+    STOP.
+  ENDIF.
+
+*-Set Field Category as HOTSPOT in second column
+  READ TABLE wt_fieldcat INDEX 2.
+  IF sy-subrc EQ 0.
+    wt_fieldcat-hotspot = 'X'.
+    MODIFY wt_fieldcat INDEX 2.
+  ENDIF.
+
+*-Set Field Category as Key in third column
+  READ TABLE wt_fieldcat INDEX 3.
+  IF sy-subrc EQ 0.
+    wt_fieldcat-key = 'X'.
+    MODIFY wt_fieldcat INDEX 3.
+  ENDIF.
+
+*-Set Field Category as checkbox in six column
+  READ TABLE wt_fieldcat INDEX 6.
+  IF sy-subrc EQ 0.
+    wt_fieldcat-checkbox = 'X'.
+    "The key of table ytsaber001 is column 6 - CHECKBOX01
+    "This program shows that the key is changed to field 3
+    CLEAR wt_fieldcat-key.
+    MODIFY wt_fieldcat INDEX 6.
+  ENDIF.
+
+*-Set Optimizing Column Widths in ALV
+  w_layout-colwidth_optimize = 'X'.
+
+ENDFORM.                    " f_fieldcat
+
+
+*&---------------------------------------------------------------------*
+*&      Form  f_alvdisplay
+*&---------------------------------------------------------------------*
+*       Display Data by ALV FM
+*----------------------------------------------------------------------*
+FORM f_alvdisplay .
+
+  CALL FUNCTION w_fm_name
+    EXPORTING
+      i_callback_program = w_repid
+      is_layout          = w_layout
+      i_grid_title       = 'ALV report program demo'
+      it_fieldcat        = wt_fieldcat[]
+    TABLES
+      t_outtab           = wt_ytsaber001
+    EXCEPTIONS
+      program_error      = 1
+      others             = 2.
+
+  IF sy-subrc <> 0.
+    MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+          WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+    STOP.
+  ENDIF.
+
+ENDFORM.                    " f_alvdisplay
