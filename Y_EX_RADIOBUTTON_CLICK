@@ -1,0 +1,27 @@
+*--Purpose : This program shows how to use radio button user command 
+*            to simulation click event
+*--Author  : Eric Yang
+*--DATE    : 2021/10/02
+
+REPORT  Y_EX_RADIOBUTTON_CLICK.
+
+*--TYPE POOL
+*--INCLUDE
+*--DECLARE
+DATA: g_fm_name TYPE string VALUE 'REUSE_ALV_GRID_DISPLAY'.
+
+PARAMETERS: r_grid RADIOBUTTON GROUP gp1 USER-COMMAND CLIK DEFAULT 'X',
+            r_list RADIOBUTTON GROUP gp1.
+
+*--AT SELECTION-SCREEN EVENT
+AT SELECTION-SCREEN.
+  IF sy-ucomm = 'CLIK'.
+    IF r_grid = 'X'.
+      g_fm_name = 'REUSE_ALV_GRID_DISPLAY'.
+    ELSEIF r_list = 'X'.
+      g_fm_name = 'REUSE_ALV_LIST_DISPLAY'.
+    ENDIF.
+  ENDIF.
+
+START-OF-SELECTION.
+  MESSAGE g_fm_name TYPE 'I'.
