@@ -1,0 +1,126 @@
+*--Purpose : This program shows how to use CL_GUI_ALV_GRID create alv ABAP report
+*--Author  : Eric Yang
+*--DATE    : 2021/10/02
+
+REPORT  y_ex_alv_cl_gui_alv_grid.
+
+*--TYPE POOL
+
+*--INCLUDE
+
+*--DECLARE Variant
+DATA: wt_gui_alv TYPE REF TO cl_gui_alv_grid.
+
+DATA: okcode LIKE sy-ucomm.
+
+DATA: gs_layout TYPE lvc_s_layo.
+
+*--DECLARE Object
+DATA: w_con1_0100 TYPE REF TO cl_gui_custom_container.  "container object
+
+DATA: w_alv_grid1_0100 TYPE REF TO cl_gui_alv_grid.     "ALV object
+
+*--DECLARE Internal Table
+DATA: wt_ytsaber001 TYPE TABLE OF ytsaber001.
+
+*--SELECT-OPTION or PARAMETERS
+
+*--AT SELECTION-SCREEN EVENT
+AT SELECTION-SCREEN.
+
+*--INITIAL
+INITIALIZATION.
+
+*--START-OF-SELECTION
+START-OF-SELECTION.
+  PERFORM f_getdata TABLES wt_ytsaber001.
+  PERFORM call_screen USING '0100'.   "for screen 0100
+
+
+*&---------------------------------------------------------------------*
+*&      Module  STATUS_0100  OUTPUT
+*&---------------------------------------------------------------------*
+*       Screen 0100 Status
+*----------------------------------------------------------------------*
+MODULE status_0100 OUTPUT.
+
+  SET PF-STATUS 'S0100'.
+  SET TITLEBAR  'T0100'.
+
+ENDMODULE.                 " STATUS_0100  OUTPUT
+
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0100  INPUT
+*&---------------------------------------------------------------------*
+*       Screen 0100 User Command
+*----------------------------------------------------------------------*
+MODULE user_command_0100 INPUT.
+
+  CASE okcode.
+    WHEN 'OK_END'.
+      LEAVE TO SCREEN 0.
+  ENDCASE.
+
+ENDMODULE.                 " USER_COMMAND_0100  INPUT
+
+*&---------------------------------------------------------------------*
+*&      Module  init_obj  OUTPUT
+*&---------------------------------------------------------------------*
+*       Create OBJ for screen 0100
+*----------------------------------------------------------------------*
+MODULE init_obj OUTPUT.
+
+  "Create container for GUI ALV
+  IF w_con1_0100 IS INITIAL.
+    CREATE OBJECT w_con1_0100
+      EXPORTING
+        container_name = 'CON1_0100'.
+
+    "Create ALV object & set container as CON1_0100
+    CREATE OBJECT w_alv_grid1_0100
+      EXPORTING
+        i_parent = w_con1_0100.
+
+    "Set Internal Table Data to ALV
+    CALL METHOD w_alv_grid1_0100->set_Table_For_first_display
+      EXPORTING
+        I_STRUCTURE_NAME = 'ytsaber001'
+      CHANGING
+        IT_OUTTAB = wt_ytsaber001.
+
+    "The column width optimization for GUI ALV
+    gs_layout-cwidth_opt = 'X'.   " optimize column width
+    CALL METHOD w_alv_grid1_0100->set_frontend_layout
+      EXPORTING
+        is_layout = gs_layout.
+
+    CALL METHOD w_alv_grid1_0100->refresh_table_display.
+  ENDIF.
+
+ENDMODULE.                 " init_obj  OUTPUT
+
+*&---------------------------------------------------------------------*
+*&      Form  call_screen
+*&---------------------------------------------------------------------*
+*       Call Screen Form
+*----------------------------------------------------------------------*
+*      -->P_dynnr   The screen number for command Call Screen
+*----------------------------------------------------------------------*
+form call_screen  using p_dynnr.
+
+  CALL SCREEN p_dynnr.
+
+endform.                    " call_screen
+
+*&---------------------------------------------------------------------*
+*&      Form  f_getdata
+*&---------------------------------------------------------------------*
+*       Get data from table ytsaber001
+*----------------------------------------------------------------------*
+FORM f_getdata TABLES pt_ytsaber001.
+
+  CLEAR: pt_ytsaber001, pt_ytsaber001[].
+  SELECT * UP TO 5 ROWS INTO CORRESPONDING FIELDS OF TABLE pt_ytsaber001
+    FROM ytsaber001.
+
+ENDFORM.                    " f_getdata
