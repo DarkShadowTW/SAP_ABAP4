@@ -50,6 +50,6 @@ DATA: w_con1_0100 TYPE REF TO cl_gui_custom_container.  "container object
   
 ![This is a alt text.](/images/Y_EX_ALV_CL_GUI_ALV_GRID_005.png "GRID ALV DEMO")
 
-*--主意 Grid ALV 不能拋 Background Mode (要改 Function ALV / SALV)
+*--Note that grid alv cannot be executed with the background mode (Please change to Function ALV / SALV)
 
 ![This is a alt text.](/images/Y_EX_ALV_CL_GUI_ALV_GRID_006.png "GRID ALV DEMO")
