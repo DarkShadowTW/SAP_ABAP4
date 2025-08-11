@@ -1,0 +1,164 @@
+*&---------------------------------------------------------------------*
+*& Purpose : Event keywords skeleton for ABAP REPORTs (full coverage)
+*& Author  :
+*& Date    :
+*&---------------------------------------------------------------------*
+REPORT  y_0_abap_template NO STANDARD PAGE HEADING       " No standard page heading / 不使用標準頁首
+                          LINE-SIZE 80                   " Line width = 80 characters / 每行寬度 80 個字元
+                          LINE-COUNT 10(3).              " 10 lines per page, reserve last 3 lines for END-OF-PAGE / 每頁 10 行，保留最後 3 行給 END-OF-PAGE
+
+*---------------------------------------------------------------------*
+* TYPE-POOLS / INCLUDE / DATA AREAS (as you need)
+* 類型池 / 引用 / 資料宣告區（依需求添加）
+*---------------------------------------------------------------------*
+TYPE-POOLS: abap.
+INCLUDE <ICON>.
+
+" Demo fields for selection-screen event variants
+" 範例用的選單畫面欄位（觸發不同事件）
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-b01.
+PARAMETERS:
+  p_f1   TYPE char20,                    " for ON/HELP/VALUE-REQUEST
+  p_chk  AS CHECKBOX DEFAULT 'X',
+  p_r1   RADIOBUTTON GROUP g1 DEFAULT 'X',
+  p_r2   RADIOBUTTON GROUP g1.
+SELECT-OPTIONS:
+  s_rng  FOR sy-datum NO-EXTENSION.      " for ON / ON END OF
+SELECTION-SCREEN END OF BLOCK b1.
+
+*---------------------------------------------------------------------*
+* Program load events (before any screen)
+* 程式載入事件（在任何畫面前觸發）
+*---------------------------------------------------------------------*
+LOAD-OF-PROGRAM.
+  MESSAGE 'LOAD-OF-PROGRAM' TYPE 'I'.
+
+" Initialize default values before showing selection screen
+" 顯示選單畫面前設定初始值
+INITIALIZATION.
+  MESSAGE 'INITIALIZATION' TYPE 'I'.
+
+*---------------------------------------------------------------------*
+* Selection-screen build & field helps
+* 選單畫面建立與欄位說明
+*---------------------------------------------------------------------*
+" Modify selection-screen before display (PBO)
+" 顯示前修改選單畫面（PBO）
+AT SELECTION-SCREEN OUTPUT.
+  MESSAGE 'AT SELECTION-SCREEN OUTPUT' TYPE 'S'.
+
+" Field help F1
+" 欄位說明 F1
+AT SELECTION-SCREEN ON HELP-REQUEST FOR p_f1.
+  MESSAGE 'ON HELP-REQUEST FOR p_f1 (F1)' TYPE 'S'.
+
+" Value help F4
+" 值清單 F4
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_f1.
+  MESSAGE 'ON VALUE-REQUEST FOR p_f1 (F4)' TYPE 'S'.
+
+*---------------------------------------------------------------------*
+* Selection-screen checks
+* 選單畫面檢核
+*---------------------------------------------------------------------*
+" Single-field check
+" 單欄位檢核
+AT SELECTION-SCREEN ON p_f1.
+  MESSAGE 'ON p_f1 (single field check)' TYPE 'S'.
+
+" Radio group check
+" 單選群組檢核
+AT SELECTION-SCREEN ON RADIOBUTTON GROUP g1.
+  MESSAGE 'ON RADIOBUTTON GROUP g1' TYPE 'S'.
+
+" Block-level check
+" 區塊檢核
+AT SELECTION-SCREEN ON BLOCK b1.
+  MESSAGE 'ON BLOCK b1' TYPE 'S'.
+
+" Range check for SELECT-OPTIONS
+" 區間檢核（SELECT-OPTIONS）
+AT SELECTION-SCREEN ON s_rng.
+  MESSAGE 'ON s_rng (range check)' TYPE 'S'.
+
+" End-of-range check
+" 區間結束檢核
+AT SELECTION-SCREEN ON END OF s_rng.
+  MESSAGE 'ON END OF s_rng' TYPE 'S'.
+
+" Exit command before checks complete
+" 檢核完成前的離開指令
+AT SELECTION-SCREEN ON EXIT-COMMAND.
+  MESSAGE 'ON EXIT-COMMAND' TYPE 'S'.
+
+" Global check after all others
+" 全域檢核（在其他檢核完成後）
+AT SELECTION-SCREEN.
+  MESSAGE 'AT SELECTION-SCREEN (global check)' TYPE 'S'.
+
+*---------------------------------------------------------------------*
+* Main processing
+* 主處理邏輯
+*---------------------------------------------------------------------*
+" Start of main processing
+" 主處理開始
+START-OF-SELECTION.
+  WRITE: / 'START-OF-SELECTION'.
+  "RESERVE 5 LINES.
+* In REPORT ... LINE-COUNT 10(3):
+* 10 = Total number of lines per page
+* 3 = Number of lines reserved for END-OF-PAGE (page footer)
+* Lines available for normal output = 10 - 3 = 7
+* 在 REPORT ... LINE-COUNT 10(3) 中：
+* 10 = 每頁總行數
+* 3 = 保留給 END-OF-PAGE 的行數（頁尾）
+* 可用於一般輸出的行數 = 10 - 3 = 7
+  RESERVE 6 LINES.   "Change new page
+
+" End of main processing
+" 主處理結束
+END-OF-SELECTION.
+  WRITE: / 'END-OF-SELECTION'.
+
+*---------------------------------------------------------------------*
+* List processing (page headers/footers)
+* 列表處理（頁首/頁尾）
+*---------------------------------------------------------------------*
+" Page header of basic list
+" 基本清單的頁首
+TOP-OF-PAGE.
+  WRITE: / 'TOP-OF-PAGE (basic list header)'.
+
+" Page footer of basic list
+" 基本清單的頁尾
+END-OF-PAGE.
+  WRITE: / 'END-OF-PAGE (basic list footer)'.
+
+*---------------------------------------------------------------------*
+* Interactive list processing
+* 互動式清單處理
+*---------------------------------------------------------------------*
+" Double-click on a list line
+" 在清單行上雙擊
+AT LINE-SELECTION.
+  WRITE: / 'AT LINE-SELECTION (secondary list)'.
+
+" Page header of secondary list
+" 次清單的頁首
+TOP-OF-PAGE DURING LINE-SELECTION.
+  WRITE: / 'TOP-OF-PAGE DURING LINE-SELECTION'.
+
+" Generic user command
+" 一般使用者指令
+AT USER-COMMAND.
+  WRITE: / 'AT USER-COMMAND (sy-ucomm={ sy-ucomm })'.
+
+*---------------------------------------------------------------------*
+* Logical Database (LDB) events — if using LDB
+* 邏輯資料庫事件（僅在使用 LDB 時）
+*---------------------------------------------------------------------*
+* REPORT y_0_abap_template USING sflight. " Example for LDB
+* GET sflight.                 " Node fetch event
+*   WRITE: / 'GET sflight'.
+* GET LATE sflight.            " After subordinate nodes processed
+*   WRITE: / 'GET LATE sflight'.
